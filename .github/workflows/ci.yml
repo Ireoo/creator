@@ -48,6 +48,13 @@ jobs:
         run: npm run upload
 
       - name: show
+        if: startsWith(matrix.os, 'windows-latest')
+        run: |
+          cd build
+          dir
+
+      - name: show
+        if: !startsWith(matrix.os, 'windows-latest')
         run: |
           cd build
           ls -alF
