@@ -1,0 +1,12 @@
+[ignore]
+[include]
+[libs]
+
+[lints]
+
+[options]
+module.name_mapper='^type' -> '<PROJECT_ROOT>/src/type'
+module.name_mapper='^lib' -> '<PROJECT_ROOT>/src/renderer/lib'
+module.name_mapper='^@' -> '<PROJECT_ROOT>/src/renderer'
+module.name_mapper='.*\.\(svg\|png\|jpg\|gif\)$' -> '<PROJECT_ROOT>/src/type/url-loader.js'
+esproposal.decorators=ignore

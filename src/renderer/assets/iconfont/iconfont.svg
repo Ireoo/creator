@@ -1,0 +1,32 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<!--
+2013-9-30: Created.
+-->
+<svg>
+<metadata>
+Created by iconfont
+</metadata>
+<defs>
+
+<font id="iconfont" horiz-adv-x="1024" >
+  <font-face
+    font-family="iconfont"
+    font-weight="500"
+    font-stretch="normal"
+    units-per-em="1024"
+    ascent="896"
+    descent="-128"
+  />
+    <missing-glyph />
+    
+    <glyph glyph-name="iosgridviewoutline" unicode="&#59349;" d="M896 512l0 32L672 544 672 768l-32 0 0-224L384 544 384 768l-32 0 0-224L128 544l0-32 224 0 0-256L128 256l0-32 224 0 0-224 32 0L384 224l256 0 0-224 32 0L672 224l224 0 0 32L672 256 672 512 896 512zM640 256 384 256 384 512l256 0L640 256z"  horiz-adv-x="1024" />
+
+    
+    <glyph glyph-name="Functionsvgicon" unicode="&#58880;" d="M640 896S505.6 896 467.2 704l-25.6-128H320l-32-64h140.8l-89.6-448c-25.6-128-121.6-128-121.6-128h-64L128-128h192s134.4 0 172.8 192l89.6 448h153.6l32 64H595.2l25.6 128c25.6 128 115.2 128 115.2 128h64l32 64h-192z"  horiz-adv-x="1024" />
+
+    
+
+
+  </font>
+</defs></svg>

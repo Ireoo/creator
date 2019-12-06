@@ -1,0 +1,29 @@
+$height = 200px
+$h-margin-img = 100px
+$h-margin-text = 300px
+$v-margin = 50px
+
+generate(type, vp, hp, index = 0) {
+  position absolute
+  font-family "Comic Sans MS", sans-serif
+  if type == img {
+    height $height
+    {vp} ($height * index + $v-margin)
+    {hp} $h-margin-img
+  } else {
+    {vp} "calc(%s + %s)" % ($v-margin 2em * index)
+    {hp} $h-margin-text
+  }
+}
+
+for type in img text {
+  for vp in top bottom {
+    for hp in left right {
+      for index in 1 2 3 4 {
+        #{vp}{hp}{type}{index} {
+          generate(type, vp, hp, index - 1)
+        }
+      }
+    }
+  }
+}
