@@ -10,6 +10,7 @@ const ProgressBar = require("progress");
 const moment = require("moment");
 require("moment-precise-range-plugin");
 const isZip = require("is-zip");
+const { execSync } = require("child_process");
 
 let from,
   to,
@@ -40,44 +41,50 @@ const download = (url, dir, cb) => {
     total: 1
   });
   let barr = 0;
-  progress(request(url), {})
-    .on("progress", function(state) {
-      // The state is an object that looks like this:
-      // {
-      //     percent: 0.5,               // Overall percent (between 0 to 1)
-      //     speed: 554732,              // The download speed in bytes/sec
-      //     size: {
-      //         total: 90044871,        // The total payload size in bytes
-      //         transferred: 27610959   // The transferred payload size in bytes
-      //     },
-      //     time: {
-      //         elapsed: 36.235,        // The total elapsed seconds since the start (3 decimals)
-      //         remaining: 81.403       // The remaining seconds to finish (3 decimals)
-      //     }
-      // }
-      bar.tick(state.percent - barr);
-      barr = state.percent;
-    })
-    .on("error", function(err) {
-      // Do something with err
-      console.log("  ×");
-      console.log(err);
-      download(url, dir, cb);
-    })
-    .on("end", function() {
-      // Do something after request finishes
-      if (!isZip(fs.readFileSync(dir))) {
+  if (fs.existsSync(dir)) {
+    bar.tick(0.99);
+    console.log("  √");
+    cb();
+  } else {
+    progress(request(url), {})
+      .on("progress", function(state) {
+        // The state is an object that looks like this:
+        // {
+        //     percent: 0.5,               // Overall percent (between 0 to 1)
+        //     speed: 554732,              // The download speed in bytes/sec
+        //     size: {
+        //         total: 90044871,        // The total payload size in bytes
+        //         transferred: 27610959   // The transferred payload size in bytes
+        //     },
+        //     time: {
+        //         elapsed: 36.235,        // The total elapsed seconds since the start (3 decimals)
+        //         remaining: 81.403       // The remaining seconds to finish (3 decimals)
+        //     }
+        // }
+        bar.tick(state.percent - barr);
+        barr = state.percent;
+      })
+      .on("error", function(err) {
+        // Do something with err
         console.log("  ×");
+        console.log(err);
         download(url, dir, cb);
-      } else {
-        // bar.tick(1 - barr);
-        console.log("  √");
-        setTimeout(() => {
-          cb();
-        }, 1000 * 10);
-      }
-    })
-    .pipe(fs.createWriteStream(dir));
+      })
+      .on("end", function() {
+        // Do something after request finishes
+        if (!isZip(fs.readFileSync(dir))) {
+          console.log("  ×");
+          download(url, dir, cb);
+        } else {
+          // bar.tick(1 - barr);
+          console.log("  √");
+          setTimeout(() => {
+            cb();
+          }, 1000 * 10);
+        }
+      })
+      .pipe(fs.createWriteStream(dir));
+  }
 };
 
 const run = soft => {
@@ -108,13 +115,30 @@ const run = soft => {
           }`,
           `./tmp/${info.download[`${process.platform}_zip`]}`,
           () => {
-            let zip = new AdmZip(
-              `./tmp/${info.download[`${process.platform}_zip`]}`
-            );
-            let zipEntries = zip.getEntries();
-            zip.extractAllTo(`./tools/${soft}/${to}`, true);
-            console.log(`${soft} is done!`);
-            reslove();
+            if (process.platform === "darwin") {
+              try {
+                execSync(
+                  `cd tmp && unzip ${info.download[`${process.platform}_zip`]}`
+                );
+                fs.moveSync(
+                  `./tmp/${soft}.app`,
+                  `./tools/${soft}/${to}/${soft}.app`
+                );
+                // fs.unlinkSync(path.join(__dirname, `../tmp/${soft}.app`));
+                console.log(`${soft} is done!`);
+              } catch (e) {
+                console.log(e);
+              }
+              reslove();
+            } else {
+              let zip = new AdmZip(
+                `./tmp/${info.download[`${process.platform}_zip`]}`
+              );
+              let zipEntries = zip.getEntries();
+              zip.extractAllTo(`./tools/${soft}/${to}`, true);
+              console.log(`${soft} is done!`);
+              reslove();
+            }
           }
         );
       });
