@@ -20,6 +20,10 @@ jobs:
       - name: install
         run: npm i
 
+      - name: install electron-builder with macos latest
+        if: startsWith(matrix.os, 'macOS-latest')
+        run: npm i electron-builder@21.2.0
+
       - name: build
         run: npm run build
 
