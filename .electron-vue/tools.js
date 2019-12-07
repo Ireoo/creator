@@ -115,29 +115,49 @@ const run = soft => {
           }`,
           `./tmp/${info.download[`${process.platform}_zip`]}`,
           () => {
-            if (process.platform === "darwin") {
-              try {
-                execSync(
-                  `cd tmp && unzip ${info.download[`${process.platform}_zip`]}`
+            let zip;
+            switch (process.platform) {
+              case "darwin":
+                try {
+                  execSync(
+                    `cd tmp && unzip ${
+                      info.download[`${process.platform}_zip`]
+                    }`
+                  );
+                  fs.moveSync(
+                    `./tmp/${soft}.app`,
+                    `./tools/${soft}/${to}/${soft}.app`
+                  );
+                  // fs.unlinkSync(path.join(__dirname, `../tmp/${soft}.app`));
+                  console.log(`${soft} is done!`);
+                } catch (e) {
+                  console.log(e);
+                }
+                reslove();
+                break;
+
+              case "win32":
+                zip = new AdmZip(
+                  `./tmp/${info.download[`${process.platform}_zip`]}`
                 );
-                fs.moveSync(
-                  `./tmp/${soft}.app`,
-                  `./tools/${soft}/${to}/${soft}.app`
-                );
-                // fs.unlinkSync(path.join(__dirname, `../tmp/${soft}.app`));
+                zip.getEntries();
+                zip.extractAllTo(`./tools/${soft}/${to}`, true);
                 console.log(`${soft} is done!`);
-              } catch (e) {
-                console.log(e);
-              }
-              reslove();
-            } else {
-              let zip = new AdmZip(
-                `./tmp/${info.download[`${process.platform}_zip`]}`
-              );
-              let zipEntries = zip.getEntries();
-              zip.extractAllTo(`./tools/${soft}/${to}`, true);
-              console.log(`${soft} is done!`);
-              reslove();
+                reslove();
+                break;
+
+              default:
+                zip = new AdmZip(
+                  `./tmp/${info.download[`${process.platform}_zip`]}`
+                );
+                zip.getEntries();
+                zip.extractAllTo(`./tools/${soft}/${to}`, true);
+                execSync(
+                  `chmod +x ./tools/${soft}/${to}/${soft.toLowerCase()}`
+                );
+                console.log(`${soft} is done!`);
+                reslove();
+                break;
             }
           }
         );
