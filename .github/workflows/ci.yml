@@ -3,42 +3,13 @@ name: CI
 on: [push]
 
 jobs:
-  release:
-    runs-on: macOS-latest
-
-    steps:
-      - name: init
-        uses: actions/checkout@master
-        with:
-          node-version: 'latest'
-
-      - name: get package version
-        id: package
-        uses: Ireoo/get-package@v1
-        with:
-          path: ./package.json
-          key: version
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{steps.package.outputs.version}}
-          release_name: 'V${{steps.package.outputs.version}}'
-          draft: false
-          prerelease: false
-
-  build2upload:
-    needs: release
-
+  build:
     runs-on: ${{matrix.os}}
 
     strategy:
       matrix:
         node: [12]
-        os: [macOS-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
       - name: init
@@ -62,6 +33,17 @@ jobs:
         with:
           path: ./package.json
           key: version
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}
+          release_name: 'V${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}'
+          draft: false
+          prerelease: false
 
       #      - name: upload macos zip
       #        uses: actions/upload-artifact@master
@@ -104,38 +86,71 @@ jobs:
       #        with:
       #          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
       #          path: ./build/Integem iCreator Setup ${{steps.package.outputs.version}}.exe
-      #      - name: deploy
-      #        run: npm run upload
+      - name: deploy
+        run: npm run upload:null
 
-      - name: Upload Release windows
-        id: upload_release_windows
+      - name: Upload Release windows app
+        if: startsWith(matrix.os, 'windows-latest')
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ jobs.release.steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/Integem iCreator_mac_${{steps.package.outputs.version}}.zip
+          asset_name: Integem iCreator_win_${{steps.package.outputs.version}}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release macos app
+        if: startsWith(matrix.os, 'macos-latest')
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/Integem iCreator_mac_${{steps.package.outputs.version}}.zip
+          asset_name: Integem iCreator_mac_${{steps.package.outputs.version}}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release linux app
+        if: startsWith(matrix.os, 'ubuntu-latest')
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/Integem iCreator_linux_${{steps.package.outputs.version}}.zip
+          asset_name: Integem iCreator_linux_${{steps.package.outputs.version}}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release windows app
+        if: startsWith(matrix.os, 'windows-latest')
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: build/Integem iCreator Setup ${{steps.package.outputs.version}}.exe
           asset_name: Integem iCreator Setup ${{steps.package.outputs.version}}.exe
           asset_content_type: application/x-executable
 
-      - name: Upload Release macos
-        id: upload_release_macos
+      - name: Upload Release macos app
+        if: startsWith(matrix.os, 'macos-latest')
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ jobs.release.steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: build/Integem iCreator-${{steps.package.outputs.version}}.dmg
           asset_name: Integem iCreator-${{steps.package.outputs.version}}.dmg
           asset_content_type: application/x-executable
 
-      - name: Upload Release linux
-        id: upload_release_linux
+      - name: Upload Release linux app
+        if: startsWith(matrix.os, 'ubuntu-latest')
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ jobs.release.steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: build/integem-creator_${{steps.package.outputs.version}}_amd64.deb
           asset_name: integem-creator_${{steps.package.outputs.version}}_amd64.deb
           asset_content_type: application/x-executable
