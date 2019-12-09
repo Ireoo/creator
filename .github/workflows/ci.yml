@@ -96,7 +96,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/Integem iCreator_mac_${{steps.package.outputs.version}}.zip
+          asset_path: build/Integem iCreator_win_${{steps.package.outputs.version}}.zip
           asset_name: Integem iCreator_win_${{steps.package.outputs.version}}.zip
           asset_content_type: application/zip
 

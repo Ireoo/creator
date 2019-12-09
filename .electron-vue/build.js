@@ -24,7 +24,7 @@ else build()
 
 function clean() {
   del.sync(['build/*', '!build/icons', '!build/icons/icon.*'])
-  // del.sync(['tmp/*'])
+  del.sync(['tmp'])
   del.sync(['tool/*', '!.gitkeep'])
   console.log(`\n${doneLog}\n`)
   process.exit()
