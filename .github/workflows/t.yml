@@ -22,4 +22,4 @@ jobs:
           path: ./package.json
 
       - name: Echo package
-        run: echo '${{ steps.package.outputs.package.version }}'
+        run: echo '${{ toJSON(steps.package.outputs) }}'
