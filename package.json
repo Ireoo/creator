@@ -12,6 +12,7 @@
     "build:source": "node --max-old-space-size=8192 .electron-vue/build.js && electron-builder",
     "prebuild": "npm run build:clean && npm run tools",
     "build": "node --max-old-space-size=8192 .electron-vue/build.js && electron-builder",
+    "prebuild:chromebook": "npm run build:clean",
     "build:chromebook": "node --max-old-space-size=8192 .electron-vue/build.js && electron-builder",
     "build:linux": "cross-env BUILD_TARGET=linux  node .electron-vue/build.js",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
