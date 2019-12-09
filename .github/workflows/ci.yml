@@ -60,20 +60,20 @@ jobs:
         if: startsWith(matrix.os, 'macOS-latest')
         with:
           name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
-          path: ./build/Integem iCreator-${{ steps.package.outputs.version }}.dmg
+          path: ./build/Integem iCreator-${{steps.package.outputs.version}}.dmg
 
       - name: upload ubuntu app
         uses: actions/upload-artifact@master
         if: startsWith(matrix.os, 'ubuntu-latest')
         with:
           name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
-          path: ./build/integem-creator_${{ steps.package.outputs.version }}_amd64.deb
+          path: ./build/integem-creator_${{steps.package.outputs.version}}_amd64.deb
 
       - name: upload windows app
         uses: actions/upload-artifact@master
         if: startsWith(matrix.os, 'windows-latest')
         with:
           name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
-          path: ./build/Integem iCreator Setup ${{ steps.package.outputs.version }}.exe
+          path: ./build/Integem iCreator Setup ${{steps.package.outputs.version}}.exe
 #      - name: deploy
 #        run: npm run upload
