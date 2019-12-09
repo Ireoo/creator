@@ -764,12 +764,10 @@ export default {
               break
 
             case 'linux':
-              id = path.join(process.cwd(), 'tools/iDownloader/linux-unpacked/idownloader').replace(/ /g, '\\ ')
+              id = path.join(process.cwd(), 'tools/iDownloader/linux-unpacked/idownloader')
               console.log(id, fs.existsSync(id))
               if (!fs.existsSync(id))
-                id = path
-                  .join(__dirname, '../../../../tools/iDownloader/linux-unpacked/idownloader')
-                  .replace(/ /g, '\\ ')
+                id = path.join(__dirname, '../../../../tools/iDownloader/linux-unpacked/idownloader')
               break
           }
           console.log(id)
@@ -791,10 +789,9 @@ export default {
               break
 
             case 'linux':
-              ip = path.join(process.cwd(), 'tools/iPic/linux-unpacked/ipic').replace(/ /g, '\\ ')
+              ip = path.join(process.cwd(), 'tools/iPic/linux-unpacked/ipic')
               console.log(ip, fs.existsSync(ip))
-              if (!fs.existsSync(ip))
-                ip = path.join(__dirname, '../../../../tools/iPic/linux-unpacked/ipic').replace(/ /g, '\\ ')
+              if (!fs.existsSync(ip)) ip = path.join(__dirname, '../../../../tools/iPic/linux-unpacked/ipic')
               break
           }
           console.log(ip)
