@@ -14,9 +14,10 @@ jobs:
 
       # Use this GitHub Action
       - name: Check package version
+        id: version
         uses: technote-space/package-version-check-action@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Package dependencies
-        run: echo '${{ toJson(secrets) }}'
+        run: echo '${{ toJson(steps.version.outputs) }}'
