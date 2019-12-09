@@ -119,12 +119,7 @@
       ></i-header-menu-button>
       <div class="group-separate"></div>
 
-      <i-header-menu-button
-        icon="cog"
-        :text="plankHomeText('setting')"
-        @click="settingDialog"
-      >
-      </i-header-menu-button>
+      <i-header-menu-button icon="cog" :text="plankHomeText('setting')" @click="settingDialog"> </i-header-menu-button>
       <i-header-menu-button
         icon="lock"
         v-if="!protect"
@@ -191,18 +186,9 @@
     <div class="plank-group" v-if="active === 'element'">
       <div class="group">
         <!--<div class="group-title">Element</div>-->
-        <i-header-parameter-square
-          type="bg"
-          @right="addImage('bg')"
-        ></i-header-parameter-square>
-        <i-header-parameter-square
-          type="fg"
-          @right="addImage('fg')"
-        ></i-header-parameter-square>
-        <i-header-parameter-square
-          type="cus"
-          @right="addImage('cus')"
-        ></i-header-parameter-square>
+        <i-header-parameter-square type="bg" @right="addImage('bg')"></i-header-parameter-square>
+        <i-header-parameter-square type="fg" @right="addImage('fg')"></i-header-parameter-square>
+        <i-header-parameter-square type="cus" @right="addImage('cus')"></i-header-parameter-square>
         <i-header-parameter-square
           type="obj"
           leftIcon="address-book-o"
@@ -230,12 +216,7 @@
         ></i-header-menu-button>
       </div>
       <div class="group-separate"></div>
-      <i-header-menu-button
-        icon="refresh"
-        text="Change Select"
-        @click="changeSelect"
-      >
-      </i-header-menu-button>
+      <i-header-menu-button icon="refresh" text="Change Select" @click="changeSelect"> </i-header-menu-button>
       <div class="group-separate"></div>
       <div class="group">
         <!--<div class="group-title">History</div>-->
@@ -301,10 +282,10 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapGetters, mapActions } from "vuex";
-import { path as rPath, clone } from "ramda";
-import path from "path";
-import { MountComponents } from "lib/utils";
+import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
+import { path as rPath, clone } from 'ramda'
+import path from 'path'
+import { MountComponents } from 'lib/utils'
 import {
   EV_DIALOG_OPEN,
   DIALOG_IMPORT_IMAGE,
@@ -339,658 +320,619 @@ import {
   DIALOG_RECORD_AUDIO,
   DIALOG_LOOP,
   DIALOG_COMBINE_MULTIPLE_PICTURES
-} from "type/constants";
-import { defaultInstruction } from "type/stage";
-import { camelCase } from "lodash";
-import { spawn } from "child_process";
-import { DB, exportToDB, getProjectInfo } from "lib/sqlite";
-import fs from "fs-extra";
+} from 'type/constants'
+import { defaultInstruction } from 'type/stage'
+import { camelCase } from 'lodash'
+import { spawn } from 'child_process'
+import { DB, exportToDB, getProjectInfo } from 'lib/sqlite'
+import fs from 'fs-extra'
 
-import intro from "intro.js";
-import { remote } from "electron";
-import { createHDFormat, convertVideo, findFiles } from "lib/project";
+import intro from 'intro.js'
+import { remote } from 'electron'
+import { createHDFormat, convertVideo, findFiles } from 'lib/project'
 
-import Button from "components/header/MenuButton.vue";
-import ParameterSquare from "components/header/ParameterSquare.vue";
-import InstructionSquare from "components/header/InstructionSquare.vue";
-const AUTODRAW = "autodraw";
-const MICRO_PAINT = "microPaint";
-const RECORD_AUDIO = "recordAudio";
-const CREATOR_WEBSITE = "creatorWebsite";
-const I_DESIGNER = "iDesigner";
-const I_DOWNLOAD = "iDownload";
-const I_PIC = "iPic";
-const CREATE_HALF_HD_PROJECT = "createHalfHDFormat";
-const CNVERT_QHD_VIDEO = "Convert qHD Video";
-const CNVERT_NHD_VIDEO = "Convert nHD Video";
-const COMBINE_MULTIPLE_PICTURES = "Combine multiple pictures";
+import Button from 'components/header/MenuButton.vue'
+import ParameterSquare from 'components/header/ParameterSquare.vue'
+import InstructionSquare from 'components/header/InstructionSquare.vue'
+const AUTODRAW = 'autodraw'
+const MICRO_PAINT = 'microPaint'
+const RECORD_AUDIO = 'recordAudio'
+const CREATOR_WEBSITE = 'creatorWebsite'
+const I_DESIGNER = 'iDesigner'
+const I_DOWNLOAD = 'iDownload'
+const I_PIC = 'iPic'
+const CREATE_HALF_HD_PROJECT = 'createHalfHDFormat'
+const CNVERT_QHD_VIDEO = 'Convert qHD Video'
+const CNVERT_NHD_VIDEO = 'Convert nHD Video'
+const COMBINE_MULTIPLE_PICTURES = 'Combine multiple pictures'
 
 export default {
-  name: "IHeaderPlank",
+  name: 'IHeaderPlank',
   data() {
-    this.initDropdown();
+    this.initDropdown()
     return {
       EV_CANVAS_FIT,
       EV_CANVAS_CHANGE_ZOOM,
       help: false
-    };
+    }
   },
   components: MountComponents(Button, ParameterSquare, InstructionSquare),
 
   computed: {
     ...mapState({
-      active: rPath(["header", "active"]),
-      stage: rPath(["project", "selectedStage"]),
-      mode: rPath(["board", "mode"]),
-      view: rPath(["board", "view"]),
-      zoom: rPath(["board", "zoom"]),
-      language: rPath(["setting", "language"]),
-      projectPath: rPath(["project", "projectPath"]),
-      password: rPath(["project", "password"]),
-      protect: rPath(["project", "protect"]),
-      domain: rPath(["configuration", "domain"]),
-      debug: rPath(["project", "debug"])
+      active: rPath(['header', 'active']),
+      stage: rPath(['project', 'selectedStage']),
+      mode: rPath(['board', 'mode']),
+      view: rPath(['board', 'view']),
+      zoom: rPath(['board', 'zoom']),
+      language: rPath(['setting', 'language']),
+      projectPath: rPath(['project', 'projectPath']),
+      password: rPath(['project', 'password']),
+      protect: rPath(['project', 'protect']),
+      domain: rPath(['configuration', 'domain']),
+      debug: rPath(['project', 'debug'])
     }),
-    ...mapGetters(["projectExist", "backendScriptValid", "playScriptValid"])
+    ...mapGetters(['projectExist', 'backendScriptValid', 'playScriptValid'])
   },
   watch: {
     language() {
-      this.initDropdown();
+      this.initDropdown()
     }
   },
   methods: {
     ...mapMutations([
-      "newStage",
-      "updateStageSource",
-      "addStageParameterUnit",
-      "updateStageParameterUnit",
-      "changeMode",
-      "changeView",
-      "changeZoom",
-      "historyRedo",
-      "historyUndo",
-      "addInstruction",
-      "autoGenerateInstruction",
-      "autoGenerateAllInstruction",
-      "changeObjImage",
-      "updateProtect",
-      "toggleDebug"
+      'newStage',
+      'updateStageSource',
+      'addStageParameterUnit',
+      'updateStageParameterUnit',
+      'changeMode',
+      'changeView',
+      'changeZoom',
+      'historyRedo',
+      'historyUndo',
+      'addInstruction',
+      'autoGenerateInstruction',
+      'autoGenerateAllInstruction',
+      'changeObjImage',
+      'updateProtect',
+      'toggleDebug'
     ]),
-    ...mapActions(["comparePassword", "openProject"]),
+    ...mapActions(['comparePassword', 'openProject']),
     initDropdown() {
-      const plankHomeText = t => this.$t("header.plank.home." + camelCase(t));
+      const plankHomeText = t => this.$t('header.plank.home.' + camelCase(t))
       const dropdownMenu = {
         person: [
           {
             text: plankHomeText(BOARD_PERSON),
-            icon: "male",
-            arg: ["obj"],
+            icon: 'male',
+            arg: ['obj'],
             disabled: false
           },
           {
             text: plankHomeText(BOARD_HALF_PERSON),
-            icon: "user",
-            arg: ["obj", "head"]
+            icon: 'user',
+            arg: ['obj', 'head']
           },
           {
             text: plankHomeText(BOARD_PERSON_CHANGE),
-            icon: "cog",
+            icon: 'cog',
             arg: [BOARD_PERSON_CHANGE]
           }
         ],
         board: [
           {
             text: plankHomeText(BOARD_BOARD),
-            icon: "clone",
+            icon: 'clone',
             arg: [BOARD_BOARD]
           },
           {
             text: plankHomeText(BOARD_TABLE),
-            icon: "table",
+            icon: 'table',
             arg: [BOARD_TABLE]
           },
           {
             text: plankHomeText(BOARD_PARAMETER),
-            icon: "table",
+            icon: 'table',
             divided: true,
             arg: [BOARD_PARAMETER]
           },
           {
             text: plankHomeText(BOARD_PREVIEW),
-            icon: "window-maximize",
+            icon: 'window-maximize',
             arg: [BOARD_PREVIEW]
           }
         ],
         map: [
           {
             text: plankHomeText(BOARD_MAP),
-            icon: "sun-o",
+            icon: 'sun-o',
             arg: [BOARD_MAP]
           },
           {
             text: plankHomeText(BOARD_LMAP),
-            icon: "",
+            icon: '',
             arg: [BOARD_LMAP]
           }
         ],
         select: [
           {
             text: plankHomeText(BOARD_SELECT),
-            icon: "mouse-pointer",
+            icon: 'mouse-pointer',
             arg: [BOARD_SELECT]
           },
           {
             text: plankHomeText(BOARD_CHANGE_SELECT),
-            icon: "refresh",
+            icon: 'refresh',
             arg: [BOARD_CHANGE_SELECT]
           }
         ],
         exports: [
           {
             text: plankHomeText(BOARD_EXPORT),
-            icon: "",
+            icon: '',
             arg: [BOARD_EXPORT]
           },
           {
             text: plankHomeText(BOARD_EXPORT_TO_MANAGER),
-            icon: "",
+            icon: '',
             arg: [BOARD_EXPORT_TO_MANAGER]
           }
         ],
         toolBox: [
           {
             text: plankHomeText(CREATOR_WEBSITE),
-            icon: "",
+            icon: '',
             arg: [CREATOR_WEBSITE]
           },
           {
             text: plankHomeText(I_DESIGNER),
-            icon: "",
+            icon: '',
             arg: [I_DESIGNER]
           },
           {
             text: plankHomeText(RECORD_AUDIO),
-            icon: "",
+            icon: '',
             arg: [RECORD_AUDIO]
           },
           {
             text: plankHomeText(MICRO_PAINT),
-            icon: "",
+            icon: '',
             arg: [MICRO_PAINT]
           },
           {
             text: plankHomeText(AUTODRAW),
-            icon: "",
+            icon: '',
             arg: [AUTODRAW]
           },
           {
             text: plankHomeText(CREATE_HALF_HD_PROJECT),
-            icon: "",
+            icon: '',
             arg: [CREATE_HALF_HD_PROJECT]
           },
           {
             text: plankHomeText(CNVERT_QHD_VIDEO),
-            icon: "",
+            icon: '',
             arg: [CNVERT_QHD_VIDEO]
           },
           {
             text: plankHomeText(CNVERT_NHD_VIDEO),
-            icon: "",
+            icon: '',
             arg: [CNVERT_NHD_VIDEO]
           },
           {
             text: plankHomeText(COMBINE_MULTIPLE_PICTURES),
-            icon: "",
+            icon: '',
             arg: [COMBINE_MULTIPLE_PICTURES]
           },
           {
             text: plankHomeText(I_DOWNLOAD),
-            icon: "",
+            icon: '',
             arg: [I_DOWNLOAD]
           },
           {
             text: plankHomeText(I_PIC),
-            icon: "",
+            icon: '',
             arg: [I_PIC]
           }
         ],
         help: [
           {
-            text: plankHomeText("help"),
-            icon: "",
-            arg: ["help"]
+            text: plankHomeText('help'),
+            icon: '',
+            arg: ['help']
           },
           {
-            text: plankHomeText("question"),
-            icon: "",
-            arg: ["question"]
+            text: plankHomeText('question'),
+            icon: '',
+            arg: ['question']
           }
         ],
         function: [
           {
-            text: plankHomeText("loop"),
-            icon: "repeat",
-            arg: ["loop"],
+            text: plankHomeText('loop'),
+            icon: 'repeat',
+            arg: ['loop'],
             disabled: false
           },
           {
-            text: plankHomeText("continue"),
-            icon: "angle-double-right",
-            arg: ["continue"]
+            text: plankHomeText('continue'),
+            icon: 'angle-double-right',
+            arg: ['continue']
           },
           {
-            text: plankHomeText("break"),
-            icon: "sign-out",
-            arg: ["break"]
+            text: plankHomeText('break'),
+            icon: 'sign-out',
+            arg: ['break']
           }
         ]
-      };
-      this.dropdownMenu = dropdownMenu;
+      }
+      this.dropdownMenu = dropdownMenu
     },
     showButton(buttonName) {
       const disabled = [
-        "person",
-        "select",
-        "crop",
-        "zoomIn",
-        "zoomOut",
-        "fitToScreen",
-        "hold",
-        "export"
+        'person',
+        'select',
+        'crop',
+        'zoomIn',
+        'zoomOut',
+        'fitToScreen',
+        'hold',
+        'export'
         // 'protect',
         // 'unprotect'
-      ];
-      const map = ["person", "stage", "fitToScreen", "crop"];
-      const projectExist = this.projectExist;
-      if (
-        [this.view === BOARD_TABLE] &&
-        disabled.includes(buttonName) &&
-        !projectExist
-      ) {
-        return true;
+      ]
+      const map = ['person', 'stage', 'fitToScreen', 'crop']
+      const projectExist = this.projectExist
+      if ([this.view === BOARD_TABLE] && disabled.includes(buttonName) && !projectExist) {
+        return true
       }
       if (this.view === BOARD_PARAMETER && disabled.includes(buttonName)) {
-        return true;
+        return true
       }
       if (this.view === BOARD_PREVIEW && disabled.includes(buttonName)) {
-        return true;
+        return true
       }
-      if (this.view === BOARD_MAP && map.includes(buttonName)) return true;
-      return false;
+      if (this.view === BOARD_MAP && map.includes(buttonName)) return true
+      return false
     },
     clickSelectMenu(item) {
-      const select = this.dropdownMenu.select;
+      const select = this.dropdownMenu.select
       switch (item) {
         case select[0]:
-          return this.changeMode(...item.arg);
+          return this.changeMode(...item.arg)
         case select[1]:
-          return this.changeSelect();
+          return this.changeSelect()
       }
     },
     generateInstruction() {
-      let promise = Promise.resolve();
+      let promise = Promise.resolve()
       if (this.stage.instruction.length) {
-        promise = this.$confirm(
-          "Are you want to overwrite instruction you created for this stage?",
-          "Warning",
-          {
-            type: "warning"
-          }
-        );
+        promise = this.$confirm('Are you want to overwrite instruction you created for this stage?', 'Warning', {
+          type: 'warning'
+        })
       }
       promise.then(() => {
-        this.autoGenerateInstruction(this.stage);
-      });
+        this.autoGenerateInstruction(this.stage)
+      })
     },
     generateAllInstruction() {
-      this.$confirm(
-        "Are you want to overwrite all instruction for all stages?",
-        "Warning",
-        {
-          type: "warning"
-        }
-      ).then(() => {
-        this.autoGenerateAllInstruction();
-      });
+      this.$confirm('Are you want to overwrite all instruction for all stages?', 'Warning', {
+        type: 'warning'
+      }).then(() => {
+        this.autoGenerateAllInstruction()
+      })
     },
     ensureProjectExist() {
       if (this.projectExist) {
-        return true;
+        return true
       }
-      const title = this.instructionDialogText("error");
-      const errMsg = this.instructionDialogText("pleaseSaveProjectFirst");
-      this.$alert(errMsg, title, { type: "error" }).then(() => {
-        this.$events.emit(AC_PROJECT_SAVE);
-      });
-      return false;
+      const title = this.instructionDialogText('error')
+      const errMsg = this.instructionDialogText('pleaseSaveProjectFirst')
+      this.$alert(errMsg, title, { type: 'error' }).then(() => {
+        this.$events.emit(AC_PROJECT_SAVE)
+      })
+      return false
     },
     chooseImage(type) {
       // abandon
-      if (!this.ensureProjectExist()) return;
-      const source = clone(this.stage.parameter[type].source);
+      if (!this.ensureProjectExist()) return
+      const source = clone(this.stage.parameter[type].source)
       this.$events.emit(EV_DIALOG_OPEN, {
         type: DIALOG_IMPORT_IMAGE,
         data: source,
         title: this.$store.state.static.label.parameter[type],
-        textOK: "Import",
+        textOK: 'Import',
         confirmed: () => {
           this.updateStageSource({
             stage: this.stage,
             type,
             source
-          });
+          })
           if (!this.stage.parameter[type].units.length) {
-            this.addImage(type);
+            this.addImage(type)
           }
         }
-      });
+      })
     },
     addImage(type, option) {
-      if (!this.ensureProjectExist()) return;
-      if (type === BOARD_PERSON_CHANGE) return this.changePersonImage();
+      if (!this.ensureProjectExist()) return
+      if (type === BOARD_PERSON_CHANGE) return this.changePersonImage()
       if (!this.stage.parameter[type].source.metadata) {
-        return this.$alert("Please select image by Resource panel", "Error", {
-          type: "error"
-        });
+        return this.$alert('Please select image by Resource panel', 'Error', {
+          type: 'error'
+        })
       }
       this.addStageParameterUnit({
         stage: this.stage,
         type
-      });
-      if (type === "obj" && option === "head") {
-        const index = this.stage.parameter.obj.units.length - 1;
-        const unit = clone(this.stage.parameter.obj.units[index]);
-        unit.init.width = unit.change.width = 500;
-        unit.init.height = unit.change.height = 500;
-        unit.init.x0 = unit.change.x0 = 710;
+      })
+      if (type === 'obj' && option === 'head') {
+        const index = this.stage.parameter.obj.units.length - 1
+        const unit = clone(this.stage.parameter.obj.units[index])
+        unit.init.width = unit.change.width = 500
+        unit.init.height = unit.change.height = 500
+        unit.init.x0 = unit.change.x0 = 710
         this.updateStageParameterUnit({
           stage: this.stage,
           type,
           index,
-          status: "init",
+          status: 'init',
           value: unit.init
-        });
+        })
         this.updateStageParameterUnit({
           stage: this.stage,
           type,
           index,
-          status: "change",
+          status: 'change',
           value: unit.change
-        });
-        this.$events.emit(EV_CANVAS_REFRESH, this.stage);
+        })
+        this.$events.emit(EV_CANVAS_REFRESH, this.stage)
       }
     },
     changePersonImage() {
-      const userPath = this.$electron.remote.app.getPath("userData");
+      const userPath = this.$electron.remote.app.getPath('userData')
       this.$events.emit(EV_DIALOG_OPEN, {
         type: DIALOG_SELECT_IMAGES,
-        title: "change person image",
+        title: 'change person image',
         data: {
-          path: path.join(userPath, "static/images/people/")
+          path: path.join(userPath, 'static/images/people/')
         },
         confirmed: res => {
-          const objPath = "images/obj";
-          const dir = path.join(this.projectPath, objPath);
-          const file = res.data.src;
-          fs.removeSync(dir);
-          fs.ensureDirSync(dir);
-          fs.copySync(
-            path.join(__static, "template/home/images/obj", file),
-            path.join(this.projectPath, objPath, file)
-          );
-          this.changeObjImage({ directory: objPath, file: file });
+          const objPath = 'images/obj'
+          const dir = path.join(this.projectPath, objPath)
+          const file = res.data.src
+          fs.removeSync(dir)
+          fs.ensureDirSync(dir)
+          fs.copySync(path.join(__static, 'template/home/images/obj', file), path.join(this.projectPath, objPath, file))
+          this.changeObjImage({ directory: objPath, file: file })
         }
-      });
+      })
     },
     async openTool(type) {
-      const { shell } = this.$electron;
-      const sysPath = process.env["windir"];
+      const { shell } = this.$electron
+      const sysPath = process.env['windir']
       switch (type) {
         case AUTODRAW:
-          return shell.openExternal("https://www.autodraw.com/");
+          return shell.openExternal('https://www.autodraw.com/')
         case MICRO_PAINT:
-          return shell.openItem(sysPath + "\\system32\\mspaint.exe");
+          return shell.openItem(sysPath + '\\system32\\mspaint.exe')
         case RECORD_AUDIO:
           return this.$events.emit(EV_DIALOG_OPEN, {
             type: DIALOG_RECORD_AUDIO,
-            title: "Record audio"
-          });
+            title: 'Record audio'
+          })
         case CREATOR_WEBSITE:
-          return shell.openExternal(`https://creator.integem.com/`);
+          return shell.openExternal(`https://creator.integem.com/`)
         case I_DESIGNER:
-          return shell.openExternal("https://idesigner.integem.com/");
+          return shell.openExternal('https://idesigner.integem.com/')
         case CREATE_HALF_HD_PROJECT:
-          this.$loading();
-          await createHDFormat(path.join(this.projectPath, "images"), "qhd");
-          await createHDFormat(path.join(this.projectPath, "images"), "nhd");
-          this.$loading().close();
-          return;
+          this.$loading()
+          await createHDFormat(path.join(this.projectPath, 'images'), 'qhd')
+          await createHDFormat(path.join(this.projectPath, 'images'), 'nhd')
+          this.$loading().close()
+          return
         case CNVERT_QHD_VIDEO:
-          this.$loading();
-          await convertVideo(path.join(this.projectPath, "images"), "qhd");
-          this.$loading().close();
-          break;
+          this.$loading()
+          await convertVideo(path.join(this.projectPath, 'images'), 'qhd')
+          this.$loading().close()
+          break
         case CNVERT_NHD_VIDEO:
-          this.$loading();
-          await convertVideo(path.join(this.projectPath, "images"), "nhd");
-          this.$loading().close();
-          break;
+          this.$loading()
+          await convertVideo(path.join(this.projectPath, 'images'), 'nhd')
+          this.$loading().close()
+          break
         case COMBINE_MULTIPLE_PICTURES:
           return this.$events.emit(EV_DIALOG_OPEN, {
             type: DIALOG_COMBINE_MULTIPLE_PICTURES,
-            title: "Combine multiple pictures",
-            width: "50%"
-          });
-          break;
+            title: 'Combine multiple pictures',
+            width: '50%'
+          })
+          break
         case I_DOWNLOAD:
-          let id = "";
-          console.log(process.platform);
+          let id = ''
+          console.log(process.platform)
           switch (process.platform) {
-            case "darwin":
+            case 'darwin':
               id =
-                process.env.NODE_ENV === "production"
-                  ? path.join(
-                      __dirname,
-                      "../../../../tools/iDownloader/mac-unpacked/iDownloader.app"
-                    )
-                  : path.join(
-                      process.cwd(),
-                      "tools/iDownloader/mac-unpacked/iDownloader.app"
-                    );
-              break;
+                process.env.NODE_ENV === 'production'
+                  ? path.join(__dirname, '../../../../tools/iDownloader/mac-unpacked/iDownloader.app')
+                  : path.join(process.cwd(), 'tools/iDownloader/mac-unpacked/iDownloader.app')
+              break
 
-            case "win32":
-              id = path.join(
-                process.cwd(),
-                "tools/iDownloader/win-unpacked/iDownloader.exe"
-              );
-              break;
+            case 'win32':
+              id = path.join(process.cwd(), 'tools/iDownloader/win-unpacked/iDownloader.exe')
+              break
 
-            case "linux":
-              id = path.join(
-                process.cwd(),
-                "tools/iDownloader/linux-unpacked/idownloader"
-              );
+            case 'linux':
+              id = path.join(process.cwd(), 'tools/iDownloader/linux-unpacked/idownloader').replace(/ /g, '\\ ')
               if (!fs.existsSync(id))
-                id = path.join(
-                  __dirname,
-                  "../../../../tools/iDownloader/linux-unpacked/idownloader"
-                );
-              break;
+                id = path
+                  .join(__dirname, '../../../../tools/iDownloader/linux-unpacked/idownloader')
+                  .replace(/ /g, '\\ ')
+              break
           }
-          console.log(id);
-          return shell.openItem(id);
-          break;
+          console.log(id)
+          return shell.openItem(id)
+          break
         case I_PIC:
-          let ip = "";
-          console.log(process.platform);
+          let ip = ''
+          console.log(process.platform)
           switch (process.platform) {
-            case "darwin":
+            case 'darwin':
               ip =
-                process.env.NODE_ENV === "production"
-                  ? path.join(
-                      __dirname,
-                      "../../../../tools/iPic/mac-unpacked/iPic.app"
-                    )
-                  : path.join(
-                      process.cwd(),
-                      "tools/iPic/mac-unpacked/iPic.app"
-                    );
-              break;
+                process.env.NODE_ENV === 'production'
+                  ? path.join(__dirname, '../../../../tools/iPic/mac-unpacked/iPic.app')
+                  : path.join(process.cwd(), 'tools/iPic/mac-unpacked/iPic.app')
+              break
 
-            case "win32":
-              ip = path.join(process.cwd(), "tools/iPic/win-unpacked/iPic.exe");
-              break;
+            case 'win32':
+              ip = path.join(process.cwd(), 'tools/iPic/win-unpacked/iPic.exe')
+              break
 
-            case "linux":
-              ip = path.join(process.cwd(), "tools/iPic/linux-unpacked/ipic");
+            case 'linux':
+              ip = path.join(process.cwd(), 'tools/iPic/linux-unpacked/ipic').replace(/ /g, '\\ ')
               if (!fs.existsSync(ip))
-                ip = path.join(
-                  __dirname,
-                  "../../../../tools/iPic/linux-unpacked/ipic"
-                );
-              break;
+                ip = path.join(__dirname, '../../../../tools/iPic/linux-unpacked/ipic').replace(/ /g, '\\ ')
+              break
           }
-          console.log(ip);
-          return shell.openItem(ip);
-          break;
+          console.log(ip)
+          return shell.openItem(ip)
+          break
       }
     },
     changeSelect() {
-      this.$events.emit(EV_CANVAS_CHANGE_SELECT);
+      this.$events.emit(EV_CANVAS_CHANGE_SELECT)
     },
     exportProject() {
-      this.$events.emit(AC_PROJECT_EXPORT);
+      this.$events.emit(AC_PROJECT_EXPORT)
     },
     exports(type) {
-      if (!this.projectExist) return;
-      if (type === BOARD_EXPORT) this.exportProject();
-      if (type === BOARD_EXPORT_TO_MANAGER) this.exportToManager();
+      if (!this.projectExist) return
+      if (type === BOARD_EXPORT) this.exportProject()
+      if (type === BOARD_EXPORT_TO_MANAGER) this.exportToManager()
     },
     exportToManager() {
-      const existThumb = fs.readdirSync(
-        path.join(this.projectPath, "thumbnail")
-      ).length;
-      if (!existThumb) return this.exportProject();
+      const existThumb = fs.readdirSync(path.join(this.projectPath, 'thumbnail')).length
+      if (!existThumb) return this.exportProject()
       new Promise(resolve => {
         if (!DB) {
-          this.$message.error("The Integem player does not exsit.");
-          return resolve();
+          this.$message.error('The Integem player does not exsit.')
+          return resolve()
         }
         const data = {
-          projectName: "",
-          description: "",
-          thumbnail: "",
-          tag: ""
-        };
-        const defaultInfo = getProjectInfo(this.projectPath);
+          projectName: '',
+          description: '',
+          thumbnail: '',
+          tag: ''
+        }
+        const defaultInfo = getProjectInfo(this.projectPath)
         if (defaultInfo) {
-          data.projectName = defaultInfo.name;
-          data.description = defaultInfo.description;
-          data.thumbnail = defaultInfo.thumbnail;
-          data.tag = JSON.parse(defaultInfo.tag).toString();
+          data.projectName = defaultInfo.name
+          data.description = defaultInfo.description
+          data.thumbnail = defaultInfo.thumbnail
+          data.tag = JSON.parse(defaultInfo.tag).toString()
         }
         this.$events.emit(EV_DIALOG_OPEN, {
           type: DIALOG_EXPORT,
           data,
-          title: "Export",
+          title: 'Export',
           confirmed: resolve
-        });
+        })
       }).then(result => {
         if (result) {
-          const { projectName, thumbnail, description, tag } = result.data;
+          const { projectName, thumbnail, description, tag } = result.data
           exportToDB({
             projectName,
             thumbnail,
             description,
             tag,
             projectPath: this.projectPath
-          });
-          this.$message.success("Exported");
+          })
+          this.$message.success('Exported')
         }
-      });
+      })
     },
     showProjectFolder() {
-      this.$events.emit(AC_SHOW_PROJECT_FOLDER);
+      this.$events.emit(AC_SHOW_PROJECT_FOLDER)
     },
     doCheck() {
       this.$events.emit(EV_DIALOG_OPEN, {
         type: DIALOG_ERROR,
-        title: "Error",
-        textCancel: "Close",
-        textOK: "Check"
-      });
+        title: 'Error',
+        textCancel: 'Close',
+        textOK: 'Check'
+      })
     },
     openAddInstruction(type) {
-      if (!this.ensureProjectExist()) return;
-      const data = clone(defaultInstruction[type]);
+      if (!this.ensureProjectExist()) return
+      const data = clone(defaultInstruction[type])
       const title = do {
-        if (type === "photo") "Take " + type;
-        else if (type === "video") "Record " + type;
-        else "Add " + type;
-        if (type === "photo") "Take " + type;
-        else if (type === "video") "Record " + type;
-        else "Add " + type;
-      };
+        if (type === 'photo') 'Take ' + type
+        else if (type === 'video') 'Record ' + type
+        else 'Add ' + type
+        if (type === 'photo') 'Take ' + type
+        else if (type === 'video') 'Record ' + type
+        else 'Add ' + type
+      }
       this.$events.emit(EV_DIALOG_OPEN, {
         type: DIALOG_INSTRUCTION_EDITOR,
         title,
-        textOk: "Add",
+        textOk: 'Add',
         data,
         confirmed: ({ data }) => {
           this.addInstruction({
             stage: this.stage,
             instruct: data
-          });
+          })
         }
-      });
+      })
     },
     settingDialog() {
       this.$events.emit(EV_DIALOG_OPEN, {
         type: DIALOG_SETTING,
-        title: "setting"
-      });
+        title: 'setting'
+      })
     },
     protectDialog() {
       const open = () =>
         this.$events.emit(EV_DIALOG_OPEN, {
           type: DIALOG_PROTECT,
-          title: "protect"
-        });
-      const option = { inputType: "password" };
-      if (!this.password) return open();
-      this.$prompt("Input project password", "Protect", option)
+          title: 'protect'
+        })
+      const option = { inputType: 'password' }
+      if (!this.password) return open()
+      this.$prompt('Input project password', 'Protect', option)
         .then(({ value }) => this.comparePassword(value))
         .then(equal => {
-          if (!equal) return this.$message.error("Password invalid");
-          open();
-        });
+          if (!equal) return this.$message.error('Password invalid')
+          open()
+        })
     },
     unprotect() {
-      const option = { inputType: "password" };
-      if (!this.password) return this.updateProtect(false);
-      this.$prompt("Input project password", "Protect", option)
+      const option = { inputType: 'password' }
+      if (!this.password) return this.updateProtect(false)
+      this.$prompt('Input project password', 'Protect', option)
         .then(({ value }) => this.comparePassword(value))
         .then(equal => {
-          if (!equal) return this.$message.error("Password invalid");
-          return this.updateProtect(false);
-        });
+          if (!equal) return this.$message.error('Password invalid')
+          return this.updateProtect(false)
+        })
     },
     openHelp(type) {
-      if (type === "question") {
-        remote.shell.openExternal("https://integem.com/help");
-        return;
+      if (type === 'question') {
+        remote.shell.openExternal('https://integem.com/help')
+        return
       }
       if (this.help) {
-        this.help.hideHints();
-        this.help = null;
-        return;
+        this.help.hideHints()
+        this.help = null
+        return
       }
-      this.help = intro();
+      this.help = intro()
       this.help.setOptions({
         hints: [
           {
-            element: document.querySelector(".menu-file"),
+            element: document.querySelector('.menu-file'),
             hint: `File
                                             <b>Create project</b> - <span>create a new project</span>
                                             <b>Open project</b> - <span>open existing project</span>
@@ -1002,7 +944,7 @@ export default {
                                             `
           },
           {
-            element: document.querySelector(".menu-account"),
+            element: document.querySelector('.menu-account'),
             hint: `Account
                                             <b>Upload</b> - <span>upload iCreator project</span>
                                             <b>My project</b> - <span>browse me existing project</span>
@@ -1010,7 +952,7 @@ export default {
                                             `
           },
           {
-            element: document.querySelector(".menu-home"),
+            element: document.querySelector('.menu-home'),
             hint: `Home
                                             <b>Stage</b> - <span>add new stage</span>
                                             <b>Person</b> - <span>add full-body person, half person or change person avatart</span>
@@ -1030,7 +972,7 @@ export default {
                                             `
           },
           {
-            element: document.querySelector(".menu-instruction"),
+            element: document.querySelector('.menu-instruction'),
             hint: `Function
                                             <b>Action</b> - <span>Add action</span>
                                             <b>Text</b> - <span>Add text</span>
@@ -1041,11 +983,11 @@ export default {
                                             `
           },
           {
-            element: document.querySelector(".menu-view-images"),
+            element: document.querySelector('.menu-view-images'),
             hint: `Open iamges folder`
           },
           {
-            element: document.querySelector(".parameter-select"),
+            element: document.querySelector('.parameter-select'),
             hint: `Parameters
                                             <b>BG</b> - <span>Background</span>
                                             <b>FG</b> - <span>foreground</span>
@@ -1054,23 +996,23 @@ export default {
                                             `
           },
           {
-            element: document.querySelector(".resource-container"),
+            element: document.querySelector('.resource-container'),
             hint: `Resource
                                             <b>Element</b> - <span>Drag and drop BG,FG,CUS images into Element area</span>
                                             <b>Introduction</b> - <span>Drag and drop music into instruction area</span>
                                             `
           },
           {
-            element: document.querySelector(".state-action"),
+            element: document.querySelector('.state-action'),
             hint: `Add Tction`
           },
           {
-            element: document.querySelector(".state-transition-add"),
+            element: document.querySelector('.state-transition-add'),
             hint: `Add Transition`
           }
         ]
-      });
-      this.help.showHints();
+      })
+      this.help.showHints()
     },
     /** 打开loop功能弹出框 **/
     addLoop(type) {
@@ -1080,10 +1022,10 @@ export default {
         data: {
           type
         }
-      });
+      })
     }
   }
-};
+}
 </script>
 
 <style lang="stylus" scoped>
