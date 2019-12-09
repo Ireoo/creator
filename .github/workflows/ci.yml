@@ -15,7 +15,7 @@ jobs:
       - name: init
         uses: actions/checkout@master
         with:
-          node-version: "latest"
+          node-version: 'latest'
 
       - name: install
         run: npm i
@@ -27,26 +27,47 @@ jobs:
       - name: build
         run: npm run build
 
-      - name: upload macos
+      - name: upload macos zip
         uses: actions/upload-artifact@master
         if: startsWith(matrix.os, 'macOS-latest')
         with:
           name: ${{matrix.node}}-${{matrix.os}}
           path: ./build/mac
 
-      - name: upload ubuntu
+      - name: upload ubuntu zip
         uses: actions/upload-artifact@master
         if: startsWith(matrix.os, 'ubuntu-latest')
         with:
           name: ${{matrix.node}}-${{matrix.os}}
           path: ./build/linux-unpacked
 
-      - name: upload windows
+      - name: upload windows zip
         uses: actions/upload-artifact@master
         if: startsWith(matrix.os, 'windows-latest')
         with:
           name: ${{matrix.node}}-${{matrix.os}}
           path: ./build/win-unpacked
+
+      - name: upload macos app
+        uses: actions/upload-artifact@master
+        if: startsWith(matrix.os, 'macOS-latest')
+        with:
+          name: Integem iCreator-1.3.4-${{matrix.node}}-${{matrix.os}}
+          path: ./build/Integem iCreator-1.3.4.dmg
+
+      - name: upload ubuntu app
+        uses: actions/upload-artifact@master
+        if: startsWith(matrix.os, 'ubuntu-latest')
+        with:
+          name: Integem iCreator-1.3.4-${{matrix.node}}-${{matrix.os}}
+          path: ./build/integem-creator_1.3.4_amd64.deb
+
+      - name: upload windows app
+        uses: actions/upload-artifact@master
+        if: startsWith(matrix.os, 'windows-latest')
+        with:
+          name: Integem iCreator-1.3.4-${{matrix.node}}-${{matrix.os}}
+          path: ./build/Integem iCreator Setup 1.3.4.exe
 
       - name: deploy
         run: npm run upload
