@@ -15,7 +15,7 @@ import type {
   UnitBase,
   Loop,
   Continue,
-  Break,
+  Break
 } from 'type/stage'
 import { Project } from 'type/project'
 import type { ErrorType } from 'type/project'
@@ -46,7 +46,7 @@ import {
   isRandomTrans,
   getStageName,
   getAllgodies,
-  deleteUnnecessaryImages,
+  deleteUnnecessaryImages
 } from 'lib/project'
 import {
   IPC_PROJECT_SAVE,
@@ -55,13 +55,14 @@ import {
   EV_CANVAS_DEEP_REFRESH,
   CHG_CTR_FOLLOW_TWO_HANDS_ACTION,
   MENU_NOT_GROUPED,
-  CB_FORMAT_STAGE,
+  CB_FORMAT_STAGE
 } from 'type/constants'
 import { clearLocalMapData } from 'type/map'
 import crypto from 'crypto'
 import { value2Label } from 'lib/form'
 import { state as defualtDebug } from './project/debug.js'
 import color from 'material-colors'
+import { Loading } from 'element-ui'
 
 delete color.black
 delete color.white
@@ -89,7 +90,7 @@ export type State = {
   protect: boolean,
   stagesFromOtherProject: string[],
   loops: Array<Loop | Continue | Break>,
-  hdRtio: number,
+  hdRtio: number
 }
 
 export type ThumbnailGroupinfo = {
@@ -117,7 +118,7 @@ const state: State = {
   protect: false,
   stagesFromOtherProject: [],
   loops: [],
-  hdRtio: 1,
+  hdRtio: 1
 }
 
 let lastSaveTime: number = 0
@@ -138,16 +139,14 @@ const getters = {
     return ungroupedStages
   },
   stageIndex(state: State): Function {
-    return stage => stage ? state.stages.findIndex(s => s.id === stage.id) : 0
+    return stage => (stage ? state.stages.findIndex(s => s.id === stage.id) : 0)
   },
   /** shift multiple choice
    * return Array<stage>,contains selected first stage to last stage
    */
   getStagesInRange(state: State): Array<Stage> {
     const firstIndex = state.stages.findIndex(stage => stage.selected)
-    const lastIndex = state.stages
-      .map(stage => stage.selected)
-      .lastIndexOf(true)
+    const lastIndex = state.stages.map(stage => stage.selected).lastIndexOf(true)
     if (firstIndex === -1) return []
     else return state.stages.slice(firstIndex, lastIndex + 1)
   },
@@ -164,36 +163,44 @@ const getters = {
   thumbnails(state: State): Array<Thumbnail> {
     const stages = state.stages
     const groups = state.stageGroup
-    const list = stages.map((stage, index) => {
-      const inGroupIndex = groups.findIndex(group => group.stageIds.includes(stage.id))
-      const groupInfo: {
-        listType: string,
-        groupInfo: ?ThumbnailGroupinfo
-      } = {
-        listType: ~inGroupIndex ? 'group' : 'stage',
-        groupInfo: null,
-      }
-      if (~inGroupIndex) {
-        const isGroupHead = groups[inGroupIndex].stageIds.indexOf(stage.id) === 0
-        groupInfo.groupInfo = {
-          groupIndex: inGroupIndex,
-          group: groups[inGroupIndex],
-          isGroupHead,
+    const list = stages
+      .map((stage, index) => {
+        const inGroupIndex = groups.findIndex(group => group.stageIds.includes(stage.id))
+        const groupInfo: {
+          listType: string,
+          groupInfo: ?ThumbnailGroupinfo
+        } = {
+          listType: ~inGroupIndex ? 'group' : 'stage',
+          groupInfo: null
         }
-      }
-      return Object.assign(groupInfo, stage)
-    }).filter(({ groupInfo, listType }) => {
-      return listType === 'stage' || groupInfo && groupInfo.isGroupHead
-    })
+        if (~inGroupIndex) {
+          const isGroupHead = groups[inGroupIndex].stageIds.indexOf(stage.id) === 0
+          groupInfo.groupInfo = {
+            groupIndex: inGroupIndex,
+            group: groups[inGroupIndex],
+            isGroupHead
+          }
+        }
+        return Object.assign(groupInfo, stage)
+      })
+      .filter(({ groupInfo, listType }) => {
+        return listType === 'stage' || (groupInfo && groupInfo.isGroupHead)
+      })
     return list
   },
-  thumbnailsIndexToStagesIndex(state: State, { thumbnails, stageIndex }: { thumbnails: Array<Thumbnail>, stageIndex: Function }): Function {
+  thumbnailsIndexToStagesIndex(
+    state: State,
+    { thumbnails, stageIndex }: { thumbnails: Array<Thumbnail>, stageIndex: Function }
+  ): Function {
     return index => {
       const stage = thumbnails[index]
       return stageIndex(stage)
     }
   },
-  lastStageIdInGroup(state: State, { thumbnails, stageIndex }: { thumbnails: Array<Thumbnail>, stageIndex: Function }): Function {
+  lastStageIdInGroup(
+    state: State,
+    { thumbnails, stageIndex }: { thumbnails: Array<Thumbnail>, stageIndex: Function }
+  ): Function {
     return groupId => {
       const stage = findLast(thumbnails, t => get(t, 'groupInfo.groupIndex') === groupId)
       if (!stage) return
@@ -212,11 +219,7 @@ const getters = {
   },
   transitionLabel(state: State, getters: any, store: any) {
     return (trans: StageTransition) => {
-      const label = value2Label(
-        store.static.form.transition[2],
-        trans.NextStage,
-        true
-      )
+      const label = value2Label(store.static.form.transition[2], trans.NextStage, true)
       return label
     }
   },
@@ -247,12 +250,8 @@ const getters = {
   conditionText(state: State, getter, rootState) {
     return condition => {
       const staticState = rootState.static.condition
-      const topGroups = condition.groups.filter(
-        conditionGroup => !conditionGroup.parent
-      )
-      const topConditions = condition.conditions.filter(
-        conditionItem => !conditionItem.parent
-      )
+      const topGroups = condition.groups.filter(conditionGroup => !conditionGroup.parent)
+      const topConditions = condition.conditions.filter(conditionItem => !conditionItem.parent)
       const { groups, conditions } = condition
       const isGroup = obj => obj.threshold === undefined
       const format = arr => {
@@ -266,10 +265,7 @@ const getters = {
           const childConditions = conditions.filter(c => c.parent === item.id)
           const children = [...childGroups, ...childConditions]
           if (children.length) {
-            if (
-              index !== 0 ||
-              logic === 'Not'
-            ) {
+            if (index !== 0 || logic === 'Not') {
               text += `${logic} `
             }
             text += `(${format(children)}) `
@@ -283,11 +279,7 @@ const getters = {
             if (item.type === 1) return staticState.loopMethods[item.method]
           })()
           const compare = staticState.compareMethods[item.compare]
-          if (
-            subGroups.length > 0 ||
-            (subConditions.length > 1 && index !== 0) ||
-            logic === 'Not'
-          ) {
+          if (subGroups.length > 0 || (subConditions.length > 1 && index !== 0) || logic === 'Not') {
             text += `${logic} `
           }
           text += `(${item.name}.${method} ${compare} ${item.threshold}) `
@@ -299,11 +291,11 @@ const getters = {
 
       return text
     }
-  },
+  }
 }
 
 function makeID(state: State): string {
-  return 'stage_' + (state.counter++)
+  return 'stage_' + state.counter++
 }
 
 function IDtoNumber(id: string) {
@@ -356,7 +348,7 @@ function pushHistory(stage, type, stackType?: 'undoStack' | 'redoStack') {
   const history = {
     type,
     element: clone(stage.parameter[type]),
-    createTime: Date.now(),
+    createTime: Date.now()
   }
   stage.history.push(history, stackType)
 }
@@ -375,7 +367,9 @@ function removeStageIdFromGroup(state: State, stageId: string) {
 
 //
 function getChange(unit: UnitBase) {
-  if (unit.chgCtr === CHG_CTR_FOLLOW_TWO_HANDS_ACTION) { return unit[unit.twoHandsType] } else return unit
+  if (unit.chgCtr === CHG_CTR_FOLLOW_TWO_HANDS_ACTION) {
+    return unit[unit.twoHandsType]
+  } else return unit
 }
 
 function beforeOpenProject() {
@@ -462,7 +456,9 @@ const mutations = {
         }
         mutations.copyStage(state, Stage.load(stage))
       })
-    } catch (err) { console.error(err) }
+    } catch (err) {
+      console.error(err)
+    }
     const newInstruction = state.instruction.slice()
     newInstruction.push(...project.instruction)
     state.instruction = newInstruction
@@ -490,10 +486,15 @@ const mutations = {
   newStage(state: State, afterIndex?: number) {
     const stage = new Stage(makeID(state))
     const exsitObjSource = get(state, 'stages.0.parameter.obj.source') || {}
-    if (exsitObjSource.file) { stage.parameter.obj.source = exsitObjSource }
+    if (exsitObjSource.file) {
+      stage.parameter.obj.source = exsitObjSource
+    }
     state.stages.push(stage)
     if (typeof afterIndex === 'number') {
-      mutations.moveStage(state, { fromIndex: state.stages.indexOf(stage), toIndex: afterIndex })
+      mutations.moveStage(state, {
+        fromIndex: state.stages.indexOf(stage),
+        toIndex: afterIndex
+      })
     }
 
     return stage
@@ -505,9 +506,7 @@ const mutations = {
   },
   onGrouping(state: State) {
     const thumbnails = this.getters.selectedThumbnails
-    const child = thumbnails
-      .map(t => this.getters.stageIndex(t) + 1)
-      .join('_')
+    const child = thumbnails.map(t => this.getters.stageIndex(t) + 1).join('_')
     const groupTitle = 'Group_' + child
     this.commit('newStageGroup', { groupTitle })
     this.commit('moveStagesToGroup', { groupTitle, stages: thumbnails })
@@ -517,28 +516,36 @@ const mutations = {
     destStages.forEach(stage => {
       this.commit('moveStageToGroup', {
         stage,
-        groupTitle,
+        groupTitle
       })
     })
   },
   newStageGroup(state: State, { groupTitle }: { [key: string]: string }) {
     state.stageGroup.push({
       title: groupTitle,
-      stageIds: [],
+      stageIds: []
     })
   },
   moveStageToGroup(state: State, { groupTitle, stage }: { groupTitle: number, stage: Stage }) {
     const getIndex: Function = this.getters.stageIndex
     const fromIndex = stage.id
     const toGroupId = state.stageGroup.findIndex(g => g.title === groupTitle)
-    if (~toGroupId) { state.stageGroup[toGroupId].stageIds.push(fromIndex) }
+    if (~toGroupId) {
+      state.stageGroup[toGroupId].stageIds.push(fromIndex)
+    }
     // cancel selected
-    this.getters.selectedThumbnails.forEach(stage => stage.selected = false)
+    this.getters.selectedThumbnails.forEach(stage => (stage.selected = false))
   },
-  changeGroupTitle(state: State, { groupId, groupTitle }: {
-    groupId: number,
-    groupTitle: string
-  }) {
+  changeGroupTitle(
+    state: State,
+    {
+      groupId,
+      groupTitle
+    }: {
+      groupId: number,
+      groupTitle: string
+    }
+  ) {
     if (!groupTitle) return
     state.stageGroup[groupId].title = groupTitle
   },
@@ -552,10 +559,7 @@ const mutations = {
   },
   doStageCopy() {
     const selectedStages = this.getters.selectedStages
-    clipboard.writeBuffer(
-      CB_FORMAT_STAGE,
-      Buffer.from(JSON.stringify(selectedStages))
-    )
+    clipboard.writeBuffer(CB_FORMAT_STAGE, Buffer.from(JSON.stringify(selectedStages)))
   },
   addStage(state: State, { stage, index }: { stage: Stage, index: number }) {
     if (typeof index === 'number') {
@@ -629,7 +633,9 @@ const mutations = {
     if (type !== 'normal') {
       stage.action.stageAction = ['0', '0'] // set stage action to no action
       for (const trans of stage.transition) {
-        if (type === 'end') { trans.stageFile = 0 }
+        if (type === 'end') {
+          trans.stageFile = 0
+        }
         if (trans.NextStage[0] !== '1') {
           trans.NextStage = ['1', '1'] // transition can only be time-based
         }
@@ -680,16 +686,24 @@ const mutations = {
     }
     stage.transition.push(transition)
   },
-  updateStageTransition(state: State, { stage, transIndex, transition }: { stage: Stage, transIndex: number, transition: StageTransition }) {
+  updateStageTransition(
+    state: State,
+    { stage, transIndex, transition }: { stage: Stage, transIndex: number, transition: StageTransition }
+  ) {
     stage.transition.splice(transIndex, 1, transition)
   },
-  updateStageTransitionTarget(state: State, { stage, transIndex, targetIndex, randomIndex }: { stage: Stage, [key: string]: number }) {
+  updateStageTransitionTarget(
+    state: State,
+    { stage, transIndex, targetIndex, randomIndex }: { stage: Stage, [key: string]: number }
+  ) {
     const trans = stage.transition[transIndex]
     const stageFile = trans.stageFile
 
     if (isRandomTrans(stageFile)) {
       Vue.set(trans.stages, randomIndex, state.stages[targetIndex].id)
-    } else { trans.stageFile = targetIndex }
+    } else {
+      trans.stageFile = targetIndex
+    }
   },
   deleteStageTransition(state: State, { stage, transIndex }: { stage: Stage, transIndex: number }) {
     stage.transition.splice(transIndex, 1)
@@ -697,7 +711,10 @@ const mutations = {
   updateStageAction(state: State, { stage, action }: { stage: Stage, action: StageAction }) {
     stage.action = clone(action)
   },
-  updateStageSource(state: State, { stage, type, source }: { stage: Stage, type: StageParameterType, source: SourceType }) {
+  updateStageSource(
+    state: State,
+    { stage, type, source }: { stage: Stage, type: StageParameterType, source: SourceType }
+  ) {
     const oldSource = stage.parameter[type].source
     let deep = false
     if (oldSource.metadata && source.metadata && source.metadata.src !== oldSource.metadata.src) {
@@ -735,12 +752,24 @@ const mutations = {
     // clear units
     stage.parameter[type].units = []
   },
-  addStageParameterUnit(state: State, { stage, type, unit }: {
-    stage: Stage,
-    type: StageParameterType,
-    unit?: StageParameterUnit<*,
-      *>,
-  }) {
+  addStageParameterUnit(
+    state: State,
+    {
+      stage,
+      type,
+      unit
+    }: {
+      stage: Stage,
+      type: StageParameterType,
+      unit?: StageParameterUnit<*, *>
+    }
+  ) {
+    const load = Loading.service({
+      lock: true,
+      text: 'Loading'
+      // spinner: "el-icon-loading",
+      // background: "rgba(255, 255, 255, 0.7)"
+    })
     // TODO: check if resource added
     const parameter = stage.parameter[type]
     const metadata: ?ResourceMetadata = stage.parameter[type].source.metadata
@@ -764,15 +793,26 @@ const mutations = {
     console.log(stage.history)
     // stage.history.clear()
     Vue.prototype.$events.emit(EV_CANVAS_REFRESH, stage)
+    load.close()
   },
-  updateStageParameterUnitValue(state: State, { stage, type, status, index, key, value }: {
-    stage: Stage,
-    type: StageParameterType,
-    status: 'init' | 'change',
-    index: number,
-    key: string,
-    value: any,
-  }) {
+  updateStageParameterUnitValue(
+    state: State,
+    {
+      stage,
+      type,
+      status,
+      index,
+      key,
+      value
+    }: {
+      stage: Stage,
+      type: StageParameterType,
+      status: 'init' | 'change',
+      index: number,
+      key: string,
+      value: any
+    }
+  ) {
     //  check key/value valid
     if (!key) return
 
@@ -791,13 +831,22 @@ const mutations = {
       Vue.set(unit, key, value)
     }
   },
-  updateStageParameterUnit(state: State, { stage, type, status, index, value }: {
-    stage: Stage,
-    type: StageParameterType,
-    status: 'init' | 'change',
-    index: number,
-    value: any,
-  }) {
+  updateStageParameterUnit(
+    state: State,
+    {
+      stage,
+      type,
+      status,
+      index,
+      value
+    }: {
+      stage: Stage,
+      type: StageParameterType,
+      status: 'init' | 'change',
+      index: number,
+      value: any
+    }
+  ) {
     pushHistory(stage, type)
 
     var unit = stage.parameter[type].units[index][status]
@@ -806,31 +855,50 @@ const mutations = {
       const twoHandsType = unit.twoHandsType || 'up'
       // I don't know why using `unit` does not work,must be using `stage.parameter[type].units[index][status]`
       stage.parameter[type].units[index][status] = Object.assign({}, unit, {
-        [twoHandsType]: pickUnitBase(value),
+        [twoHandsType]: pickUnitBase(value)
       })
     } else {
       Object.assign(unit, value)
     }
   },
-  changeStageSourceType(state: State, { stage, type, sourceType }: {
-    stage: Stage,
-    type: StageParameterType,
-    sourceType: '' | 'same' | 'random',
-  }) {
+  changeStageSourceType(
+    state: State,
+    {
+      stage,
+      type,
+      sourceType
+    }: {
+      stage: Stage,
+      type: StageParameterType,
+      sourceType: '' | 'same' | 'random'
+    }
+  ) {
     const source = stage.parameter[type].source
     changeSourceType(source, sourceType)
   },
-  updateStageParameterCommon(state: State, { stage, type, status, key, value }: {
-    stage: Stage,
-    type: StageParameterType,
-    status: 'init' | 'change',
-    key: string,
-    value: any,
-  }) {
+  updateStageParameterCommon(
+    state: State,
+    {
+      stage,
+      type,
+      status,
+      key,
+      value
+    }: {
+      stage: Stage,
+      type: StageParameterType,
+      status: 'init' | 'change',
+      key: string,
+      value: any
+    }
+  ) {
     // TODO: check key/value valid
     stage.parameter[type][status][key] = value
   },
-  deleteStageParameterUnit(state: State, { stage, type, index }: { stage: Stage, type: StageParameterType, index: number }) {
+  deleteStageParameterUnit(
+    state: State,
+    { stage, type, index }: { stage: Stage, type: StageParameterType, index: number }
+  ) {
     const parameter = stage.parameter[type]
     console.log('deleteStageParameterUnit', parameter)
     if (parameter.units.length > index) {
@@ -843,27 +911,58 @@ const mutations = {
     if (parameter.units.length === 0) {
       mutations.deleteStageSource(state, {
         stage: stage,
-        type: type,
+        type: type
       })
     }
     // stage.history.clear()
     Vue.prototype.$events.emit(EV_CANVAS_REFRESH, stage)
   },
-  addInstruction(state: State, { stage, instruct }: { stage: Stage, instruct: InstructionItemType | InstructionGlobalItemType }) {
+  addInstruction(
+    state: State,
+    {
+      stage,
+      instruct
+    }: {
+      stage: Stage,
+      instruct: InstructionItemType | InstructionGlobalItemType
+    }
+  ) {
     if (instruct.type === 'music' || instruct.type === 'video') {
       state.instruction.push(instruct)
     } else {
       stage.instruction.push(instruct)
     }
   },
-  updateInstruction(state: State, { stage, instruct, index }: { stage: Stage, index: number, instruct: InstructionItemType | InstructionGlobalItemType }) {
+  updateInstruction(
+    state: State,
+    {
+      stage,
+      instruct,
+      index
+    }: {
+      stage: Stage,
+      index: number,
+      instruct: InstructionItemType | InstructionGlobalItemType
+    }
+  ) {
     if (instruct.type === 'music' || instruct.type === 'video') {
       state.instruction.splice(index, 1, instruct)
     } else {
       stage.instruction.splice(index, 1, instruct)
     }
   },
-  deleteInstruction(state: State, { stage, instruct, index }: { stage: Stage, index: number, instruct: InstructionItemType | InstructionGlobalItemType }) {
+  deleteInstruction(
+    state: State,
+    {
+      stage,
+      instruct,
+      index
+    }: {
+      stage: Stage,
+      index: number,
+      instruct: InstructionItemType | InstructionGlobalItemType
+    }
+  ) {
     if (instruct.type === 'music' || instruct.type === 'video') {
       state.instruction.splice(index, 1)
     } else {
@@ -885,31 +984,52 @@ const mutations = {
     }
     mutations.checkInstruction(state)
   },
-  resetToInitial(state: State, { stage, type, index }: {
-    stage: Stage,
-    type: StageParameterType,
-    index: number,
-  }) {
+  resetToInitial(
+    state: State,
+    {
+      stage,
+      type,
+      index
+    }: {
+      stage: Stage,
+      type: StageParameterType,
+      index: number
+    }
+  ) {
     pushHistory(stage, type)
     const init = stage.parameter[type].units[index].init
     const change = getChange(stage.parameter[type].units[index].change)
     Object.assign(change, pickExchangableUnit(init))
   },
-  resetToChange(state: State, { stage, type, index }: {
-    stage: Stage,
-    type: StageParameterType,
-    index: number,
-  }) {
+  resetToChange(
+    state: State,
+    {
+      stage,
+      type,
+      index
+    }: {
+      stage: Stage,
+      type: StageParameterType,
+      index: number
+    }
+  ) {
     pushHistory(stage, type)
     const init = stage.parameter[type].units[index].init
     const change = getChange(stage.parameter[type].units[index].change)
     Object.assign(init, pickExchangableUnit(change))
   },
-  exchangeInitialAndChange(state: State, { stage, type, index }: {
-    stage: Stage,
-    type: StageParameterType,
-    index: number,
-  }) {
+  exchangeInitialAndChange(
+    state: State,
+    {
+      stage,
+      type,
+      index
+    }: {
+      stage: Stage,
+      type: StageParameterType,
+      index: number
+    }
+  ) {
     pushHistory(stage, type)
     const init = stage.parameter[type].units[index].init
     const change = getChange(stage.parameter[type].units[index].change)
@@ -918,12 +1038,20 @@ const mutations = {
     Object.assign(change, initBase)
     Object.assign(init, changeBase)
   },
-  resetUnit(state: State, { stage, type, index, status }: {
-    stage: Stage,
-    type: StageParameterType,
-    index: number,
-    status: 'init' | 'change',
-  }) {
+  resetUnit(
+    state: State,
+    {
+      stage,
+      type,
+      index,
+      status
+    }: {
+      stage: Stage,
+      type: StageParameterType,
+      index: number,
+      status: 'init' | 'change'
+    }
+  ) {
     pushHistory(stage, type)
 
     const unit = getChange(stage.parameter[type].units[index][status])
@@ -934,7 +1062,12 @@ const mutations = {
     Object.assign(unit, pickUnitBase(defaultParameterValue[type][status]))
   },
   updatePassword(state: State, password: string) {
-    state.password = password ? crypto.createHash('md5').update(password).digest('hex') : ''
+    state.password = password
+      ? crypto
+          .createHash('md5')
+          .update(password)
+          .digest('hex')
+      : ''
   },
   updateProtectList(state: State, item: string[]) {
     state.protectList = item
@@ -950,29 +1083,37 @@ const mutations = {
     const index = state.stagesFromOtherProject.findIndex(id => id === stageId)
     state.stagesFromOtherProject.splice(index, 1)
   },
-  afterImageRename(state: State, { directory, oldFileName, newFileName, stage }: { [key: string]: string, stage?: Stage }) {
+  afterImageRename(
+    state: State,
+    { directory, oldFileName, newFileName, stage }: { [key: string]: string, stage?: Stage }
+  ) {
     let allSource
     if (stage) {
       allSource = flatten(['bg', 'cus', 'fg'].map(type => stage.parameter[type].source))
     } else {
       allSource = flatten(state.stages.map(stage => ['bg', 'cus', 'fg'].map(type => stage.parameter[type].source)))
     }
-    allSource.filter(source => {
-      if (source.file === 'same') {
-        const filename = path.basename(source.reference)
-        return path.dirname(source.reference) === directory && filename === oldFileName
-      }
-      return source.directory === directory && source.file === oldFileName
-    })
+    allSource
+      .filter(source => {
+        if (source.file === 'same') {
+          const filename = path.basename(source.reference)
+          return path.dirname(source.reference) === directory && filename === oldFileName
+        }
+        return source.directory === directory && source.file === oldFileName
+      })
       .forEach(source => {
         source.metadata.src = source.metadata.src.replace(oldFileName, newFileName)
-        if (source.file === 'same') { source.reference = source.reference.replace(oldFileName, newFileName) } else source.file = newFileName
+        if (source.file === 'same') {
+          source.reference = source.reference.replace(oldFileName, newFileName)
+        } else source.file = newFileName
       })
   },
   updateParameter3D(state: State, { key, value }: { key: string, value: any }) {
     if (typeof value === 'number' && isNaN(value)) return
     const stage: Stage = state.stages.find(stage => stage.id === this.state.threed.stageId)
-    if (stage) { set(stage.parameter3D, key, value) }
+    if (stage) {
+      set(stage.parameter3D, key, value)
+    }
   },
   updateMetadata3D(state: State, options: any) {
     const stage = options.stage
@@ -1009,7 +1150,7 @@ const mutations = {
     Object.assign(loop, {
       startIndex,
       endIndex,
-      count,
+      count
     })
   },
   updateLoop(state: State, { index, newLoop }: { index: number, newLoop: Loop }) {
@@ -1072,7 +1213,18 @@ const mutations = {
     // 删除子元素
   },
   /** 将conditionItem或conditionGrou移动到to中 */
-  moveToConditionGroup(state: State, { to, conditionItem, conditionGroup }: { to: ConditionGroup, conditionItem?: ConditionItem, conditionGroup?: ConditionGroup }) {
+  moveToConditionGroup(
+    state: State,
+    {
+      to,
+      conditionItem,
+      conditionGroup
+    }: {
+      to: ConditionGroup,
+      conditionItem?: ConditionItem,
+      conditionGroup?: ConditionGroup
+    }
+  ) {
     if (conditionItem) {
       to.children.push(conditionItem.id)
       conditionItem.parent = to.id
@@ -1082,19 +1234,26 @@ const mutations = {
     }
   },
   /** 将conditionItem或conditionGrou从group中移除 */
-  moveOutConditionGroup(state: State, { conditionItem, conditionGroup }: { conditionItem?: ConditionItem, conditionGroup: ConditionGroup }) {
+  moveOutConditionGroup(
+    state: State,
+    { conditionItem, conditionGroup }: { conditionItem?: ConditionItem, conditionGroup: ConditionGroup }
+  ) {
     if (conditionItem) {
       conditionItem.parent = null
-      const foundGroup = state.selectedStage.condition.groups.find(_conditionGroup => _conditionGroup.children.includes(conditionItem.id))
+      const foundGroup = state.selectedStage.condition.groups.find(_conditionGroup =>
+        _conditionGroup.children.includes(conditionItem.id)
+      )
       const index = foundGroup.children.indexOf(conditionItem.id)
       foundGroup.children.splice(index, 1)
     } else if (conditionGroup) {
       conditionGroup.parent = null
-      const foundGroup = state.selectedStage.condition.groups.find(_conditionGroup => _conditionGroup.children.includes(conditionGroup.id))
+      const foundGroup = state.selectedStage.condition.groups.find(_conditionGroup =>
+        _conditionGroup.children.includes(conditionGroup.id)
+      )
       const index = foundGroup.children.indexOf(conditionGroup.id)
       foundGroup.children.splice(index, 1)
     }
-  },
+  }
 }
 
 const actions = {
@@ -1111,28 +1270,33 @@ const actions = {
   openProject({ commit }: ActionContext<State, *>, projectPath: string) {
     beforeOpenProject()
     commit('changeLockAction', true)
-    return openProject(projectPath).then(async(project) => {
-      try {
-        const changedMedia = checkChangedMedia(project)
-        if (changedMedia.length) {
-          Message.warning(`Warning: ${changedMedia.length} images/videos have been modified`)
-          await compressMedia(changedMedia)
+    return openProject(projectPath)
+      .then(async project => {
+        try {
+          const changedMedia = checkChangedMedia(project)
+          if (changedMedia.length) {
+            Message.warning(`Warning: ${changedMedia.length} images/videos have been modified`)
+            await compressMedia(changedMedia)
+          }
+        } catch (err) {
+          console.error(err)
         }
-      } catch (err) { console.error(err) }
-      commit('loadProject', project)
-      commit('changeProjectPath', projectPath)
-      return project
-    }).then(project => {
-      commit('changeLockAction', false)
-      setTimeout(() => {
-        // 延迟防止delete时emit的Eevent未来得及注册。通过project.ic文件打开会出现此情况
-        deleteUnnecessaryImages(project, projectPath)
-      }, 10000)
-      return project
-    }).catch(err => {
-      Message.warning('' + err)
-      commit('changeLockAction', false)
-    })
+        commit('loadProject', project)
+        commit('changeProjectPath', projectPath)
+        return project
+      })
+      .then(project => {
+        commit('changeLockAction', false)
+        setTimeout(() => {
+          // 延迟防止delete时emit的Eevent未来得及注册。通过project.ic文件打开会出现此情况
+          deleteUnnecessaryImages(project, projectPath)
+        }, 10000)
+        return project
+      })
+      .catch(err => {
+        Message.warning('' + err)
+        commit('changeLockAction', false)
+      })
   },
   async saveProject({ state, commit }: ActionContext<State, *>, fromProjectPath?: string) {
     commit('changeLockAction', true)
@@ -1140,20 +1304,23 @@ const actions = {
     commit('changeLockAction', false)
   },
   exportProject({ commit }: ActionContext<State, *>) {
-    return Promise.resolve().then(() => {
-      commit('changeLockAction', true)
-      const project = state2Project(state)
-      if (state.projectPath) {
-        return exportProject(project, state.projectPath)
-      } else {
-        throw new Error('must be save it before your export')
-      }
-    }).then(() => {
-      commit('changeLockAction', false)
-    }).catch(err => {
-      commit('changeLockAction', false)
-      throw err
-    })
+    return Promise.resolve()
+      .then(() => {
+        commit('changeLockAction', true)
+        const project = state2Project(state)
+        if (state.projectPath) {
+          return exportProject(project, state.projectPath)
+        } else {
+          throw new Error('must be save it before your export')
+        }
+      })
+      .then(() => {
+        commit('changeLockAction', false)
+      })
+      .catch(err => {
+        commit('changeLockAction', false)
+        throw err
+      })
   },
   async checkErrors({ commit, state }: ActionContext<State, *>) {
     const project = state2Project(state)
@@ -1167,7 +1334,13 @@ const actions = {
     commit('setErrors', [...stageErrors, ...projectErrors, ...loopErrors])
   },
   comparePassword({ state }: ActionContext<State, *>, password: string): boolean {
-    return state.password === crypto.createHash('md5').update(password).digest('hex')
+    return (
+      state.password ===
+      crypto
+        .createHash('md5')
+        .update(password)
+        .digest('hex')
+    )
   },
   async addConditionGroup({ commit, state }) {
     return MessageBox.prompt('Input Group name').then(({ value: name }) => {
@@ -1177,7 +1350,7 @@ const actions = {
       commit('addConditionGroup', { stage, conditionGroup })
       return conditionGroup
     })
-  },
+  }
 }
 
 const AUTO_SAVE_MUTATION: Array<$Keys<typeof mutations>> = [
@@ -1215,14 +1388,17 @@ const AUTO_SAVE_MUTATION: Array<$Keys<typeof mutations>> = [
   'changeObjImage',
   'updatePassword',
   'updateProtectList',
-  'updateProtect',
+  'updateProtect'
 ]
 
 const context = require.context('./project', false, /\.js$/)
-const modules = context.keys().map(key => context(key).default).reduce((pre, current, i) => {
-  pre[current.name] = current
-  return pre
-}, {})
+const modules = context
+  .keys()
+  .map(key => context(key).default)
+  .reduce((pre, current, i) => {
+    pre[current.name] = current
+    return pre
+  }, {})
 
 export default {
   name: 'project',
@@ -1237,7 +1413,7 @@ export default {
       autoSaveProject(state.project)
     }
   },
-  watch: [],
+  watch: []
 }
 
 mutations.newStage(state)
