@@ -62,7 +62,6 @@ import crypto from 'crypto'
 import { value2Label } from 'lib/form'
 import { state as defualtDebug } from './project/debug.js'
 import color from 'material-colors'
-import { Loading } from 'element-ui'
 
 delete color.black
 delete color.white
@@ -764,12 +763,6 @@ const mutations = {
       unit?: StageParameterUnit<*, *>
     }
   ) {
-    const load = Loading.service({
-      lock: true,
-      text: 'Loading'
-      // spinner: "el-icon-loading",
-      // background: "rgba(255, 255, 255, 0.7)"
-    })
     // TODO: check if resource added
     const parameter = stage.parameter[type]
     const metadata: ?ResourceMetadata = stage.parameter[type].source.metadata
@@ -793,7 +786,6 @@ const mutations = {
     console.log(stage.history)
     // stage.history.clear()
     Vue.prototype.$events.emit(EV_CANVAS_REFRESH, stage)
-    load.close()
   },
   updateStageParameterUnitValue(
     state: State,
