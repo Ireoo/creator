@@ -19,4 +19,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Package dependencies
-        run: yarn ${{ toJson(secrets) }}
+        run: echo '${{ toJson(secrets) }}'
