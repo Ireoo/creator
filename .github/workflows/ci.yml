@@ -3,7 +3,36 @@ name: CI
 on: [push]
 
 jobs:
-  build4upload:
+  release:
+    runs-on: macOS-latest
+
+    steps:
+      - name: init
+        uses: actions/checkout@master
+        with:
+          node-version: 'latest'
+
+      - name: get package version
+        id: package
+        uses: Ireoo/get-package@v1
+        with:
+          path: ./package.json
+          key: version
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{steps.package.outputs.version}}
+          release_name: 'V${{steps.package.outputs.version}}'
+          draft: false
+          prerelease: false
+
+  build2upload:
+    needs: release
+
     runs-on: ${{matrix.os}}
 
     strategy:
@@ -15,7 +44,7 @@ jobs:
       - name: init
         uses: actions/checkout@master
         with:
-          node-version: 'latest'
+          node-version: ${{ matrix.node }}
 
       - name: install
         run: npm i
@@ -34,46 +63,79 @@ jobs:
           path: ./package.json
           key: version
 
-      - name: upload macos zip
-        uses: actions/upload-artifact@master
-        if: startsWith(matrix.os, 'macOS-latest')
-        with:
-          name: ${{matrix.node}}-${{matrix.os}}
-          path: ./build/mac
+      #      - name: upload macos zip
+      #        uses: actions/upload-artifact@master
+      #        if: startsWith(matrix.os, 'macOS-latest')
+      #        with:
+      #          name: ${{matrix.node}}-${{matrix.os}}
+      #          path: ./build/mac
+      #
+      #      - name: upload ubuntu zip
+      #        uses: actions/upload-artifact@master
+      #        if: startsWith(matrix.os, 'ubuntu-latest')
+      #        with:
+      #          name: ${{matrix.node}}-${{matrix.os}}
+      #          path: ./build/linux-unpacked
+      #
+      #      - name: upload windows zip
+      #        uses: actions/upload-artifact@master
+      #        if: startsWith(matrix.os, 'windows-latest')
+      #        with:
+      #          name: ${{matrix.node}}-${{matrix.os}}
+      #          path: ./build/win-unpacked
+      #
+      #      - name: upload macos app
+      #        uses: actions/upload-artifact@master
+      #        if: startsWith(matrix.os, 'macOS-latest')
+      #        with:
+      #          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
+      #          path: ./build/Integem iCreator-${{steps.package.outputs.version}}.dmg
+      #
+      #      - name: upload ubuntu app
+      #        uses: actions/upload-artifact@master
+      #        if: startsWith(matrix.os, 'ubuntu-latest')
+      #        with:
+      #          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
+      #          path: ./build/integem-creator_${{steps.package.outputs.version}}_amd64.deb
+      #
+      #      - name: upload windows app
+      #        uses: actions/upload-artifact@master
+      #        if: startsWith(matrix.os, 'windows-latest')
+      #        with:
+      #          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
+      #          path: ./build/Integem iCreator Setup ${{steps.package.outputs.version}}.exe
+      #      - name: deploy
+      #        run: npm run upload
 
-      - name: upload ubuntu zip
-        uses: actions/upload-artifact@master
-        if: startsWith(matrix.os, 'ubuntu-latest')
+      - name: Upload Release windows
+        id: upload_release_windows
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{matrix.node}}-${{matrix.os}}
-          path: ./build/linux-unpacked
+          upload_url: ${{ jobs.release.steps.create_release.outputs.upload_url }}
+          asset_path: build/Integem iCreator Setup ${{steps.package.outputs.version}}.exe
+          asset_name: Integem iCreator Setup ${{steps.package.outputs.version}}.exe
+          asset_content_type: application/x-executable
 
-      - name: upload windows zip
-        uses: actions/upload-artifact@master
-        if: startsWith(matrix.os, 'windows-latest')
+      - name: Upload Release macos
+        id: upload_release_macos
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{matrix.node}}-${{matrix.os}}
-          path: ./build/win-unpacked
+          upload_url: ${{ jobs.release.steps.create_release.outputs.upload_url }}
+          asset_path: build/Integem iCreator-${{steps.package.outputs.version}}.dmg
+          asset_name: Integem iCreator-${{steps.package.outputs.version}}.dmg
+          asset_content_type: application/x-executable
 
-      - name: upload macos app
-        uses: actions/upload-artifact@master
-        if: startsWith(matrix.os, 'macOS-latest')
+      - name: Upload Release linux
+        id: upload_release_linux
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
-          path: ./build/Integem iCreator-${{steps.package.outputs.version}}.dmg
-
-      - name: upload ubuntu app
-        uses: actions/upload-artifact@master
-        if: startsWith(matrix.os, 'ubuntu-latest')
-        with:
-          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
-          path: ./build/integem-creator_${{steps.package.outputs.version}}_amd64.deb
-
-      - name: upload windows app
-        uses: actions/upload-artifact@master
-        if: startsWith(matrix.os, 'windows-latest')
-        with:
-          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
-          path: ./build/Integem iCreator Setup ${{steps.package.outputs.version}}.exe
-#      - name: deploy
-#        run: npm run upload
+          upload_url: ${{ jobs.release.steps.create_release.outputs.upload_url }}
+          asset_path: build/integem-creator_${{steps.package.outputs.version}}_amd64.deb
+          asset_name: integem-creator_${{steps.package.outputs.version}}_amd64.deb
+          asset_content_type: application/x-executable
