@@ -14,10 +14,8 @@ jobs:
 
       # Use this GitHub Action
       - name: Check package version
-        id: version
-        uses: technote-space/package-version-check-action@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: latest
+        uses: blacktop/get-latest-version-action@v1
 
       - name: Install Package dependencies
-        run: echo '${{ toJson(steps.version.outputs) }}'
+        run: echo '${{ toJson(steps.latest.outputs) }}'
