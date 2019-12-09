@@ -27,6 +27,13 @@ jobs:
       - name: build
         run: npm run build
 
+      - name: get package version
+        id: package
+        uses: Ireoo/get-package@v1
+        with:
+          path: ./package.json
+          key: version
+
       - name: upload macos zip
         uses: actions/upload-artifact@master
         if: startsWith(matrix.os, 'macOS-latest')
@@ -52,21 +59,21 @@ jobs:
         uses: actions/upload-artifact@master
         if: startsWith(matrix.os, 'macOS-latest')
         with:
-          name: Integem iCreator-1.3.5-${{matrix.node}}-${{matrix.os}}
-          path: ./build/Integem iCreator-1.3.5.dmg
+          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
+          path: ./build/Integem iCreator-${{ steps.package.outputs.version }}.dmg
 
       - name: upload ubuntu app
         uses: actions/upload-artifact@master
         if: startsWith(matrix.os, 'ubuntu-latest')
         with:
-          name: Integem iCreator-1.3.5-${{matrix.node}}-${{matrix.os}}
-          path: ./build/integem-creator_1.3.5_amd64.deb
+          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
+          path: ./build/integem-creator_${{ steps.package.outputs.version }}_amd64.deb
 
       - name: upload windows app
         uses: actions/upload-artifact@master
         if: startsWith(matrix.os, 'windows-latest')
         with:
-          name: Integem iCreator-1.3.5-${{matrix.node}}-${{matrix.os}}
-          path: ./build/Integem iCreator Setup 1.3.5.exe
+          name: ${{steps.package.outputs.version}}-${{matrix.node}}-${{matrix.os}}-app
+          path: ./build/Integem iCreator Setup ${{ steps.package.outputs.version }}.exe
 #      - name: deploy
 #        run: npm run upload
