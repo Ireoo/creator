@@ -20,6 +20,7 @@ jobs:
         uses: Ireoo/get-package@v1
         with:
           path: ./package.json
+          key: version
 
       - name: Echo package
         run: echo '${{ toJSON(steps.package.outputs) }}'
