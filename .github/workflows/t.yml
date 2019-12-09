@@ -1,0 +1,25 @@
+name: T
+
+on: [push]
+
+jobs:
+  build4upload:
+    runs-on: ubuntu
+
+    #    strategy:
+    #      matrix:
+    #        node: [12]
+    #        os: [macOS-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - name: init
+        uses: actions/checkout@v1
+
+      - name: get package version
+        id: package
+        uses: Ireoo/get-package@v1
+        with:
+          path: ./package.json
+
+      - name: Echo package
+        run: echo 'Latest version is ${{ steps.package.outputs.package }}.'
