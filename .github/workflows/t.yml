@@ -23,4 +23,4 @@ jobs:
           key: version
 
       - name: Echo package
-        run: echo '${{ toJSON(steps.package.outputs) }}'
+        run: echo '${{ steps.package.outputs.version }}'
