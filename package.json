@@ -1,7 +1,7 @@
 {
   "name": "integem-creator",
   "productName": "Integem iCreator",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "author": "IntegemCreator <support@integem.com>",
   "description": "integem creator ui",
   "private": true,
@@ -37,7 +37,7 @@
     "iPic": "cd ./tmp/iPic && npm i && npm run build",
     "postiPic": "node .electron-vue/mv.js iPic",
     "tools": "node .electron-vue/tools.js",
-    "version": "ncc run package.js"
+    "version": "node package.js"
   },
   "husky": {
     "hooks": {
