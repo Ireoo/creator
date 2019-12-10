@@ -36,11 +36,12 @@
     "preiPic": "git clone http://jackwang:jackwang@99.109.54.153:8821/jackwang/ipic.git ./tmp/iPic",
     "iPic": "cd ./tmp/iPic && npm i && npm run build",
     "postiPic": "node .electron-vue/mv.js iPic",
-    "tools": "node .electron-vue/tools.js"
+    "tools": "node .electron-vue/tools.js",
+    "version": "ncc run package.js"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged"
+      "pre-commit": "npm run version && git add package.json && pretty-quick --staged"
     }
   },
   "build": {
@@ -140,6 +141,7 @@
     "zip-folder": "^1.0.0"
   },
   "devDependencies": {
+    "@zeit/ncc": "^0.20.5",
     "adm-zip": "^0.4.13",
     "archiver": "^3.1.1",
     "babel-core": "^6.25.0",
