@@ -29,6 +29,7 @@ export const DIALOG_EXPORT = 'export'
 export const DIALOG_PROTECT = 'protect'
 export const DIALOG_RECORD_AUDIO = 'record-audio'
 export const DIALOG_LOGIN = 'login'
+// export const DIALOG_MY_CLASS_PROJECT = 'my-class-project'
 export const DIALOG_MY_PROJECT = 'my-project'
 export const DIALOG_TEMPLATES = 'templates'
 export const DIALOG_UPLOAD = 'upload'
@@ -125,7 +126,7 @@ export const DEFAULT_ORDER = {
   bg: 5,
   fg: 25,
   cus: 10,
-  obj: 15,
+  obj: 15
 }
 
 // Parameter Form

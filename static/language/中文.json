@@ -5,8 +5,10 @@
       "accountMenu": {
         "login": "登录",
         "logout": "注销",
-        "downloadProject": "Download project",
-        "configuration": "Configuration",
+        "myClassProject": "我的课程",
+        "myProject": "我的创作",
+        "downloadProject": "下载项目",
+        "configuration": "配置",
         "upload": "上传"
       },
       "file": "文件",
@@ -260,6 +262,7 @@
       "editGoody": "Edit goody",
       "font": "字体",
       "login": "登录",
+      "myClassProject": "我的课程",
       "myProject": "我的项目",
       "upload": "上传",
       "downloadProjects": "Download projects",

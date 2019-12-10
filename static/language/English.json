@@ -5,6 +5,7 @@
       "accountMenu": {
         "login": "Login",
         "logout": "Logout",
+        "myClassProject": "My class project",
         "myProject": "My project",
         "downloadProject": "Download project",
         "configuration": "Configuration",
@@ -261,6 +262,7 @@
       "editGoody": "Edit Goody",
       "font": "Font",
       "login": "Login",
+      "myClassProject": "My class project",
       "myProject": "My project",
       "downloadProjects": "Download projects",
       "upload": "Upload",
